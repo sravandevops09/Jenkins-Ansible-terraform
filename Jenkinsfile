@@ -49,8 +49,8 @@ stage('Ansible Deployment') {
                 playbook: 'amazon-playbook.yml',
                 inventory: 'inventory.ini',
                 limit: 'frontend',
-                credentialsId: 'private_key',  // your Jenkins SSH key
-                extras: "-u ec2-user"
+                credentialsId: 'private_key',       // your Jenkins SSH key
+                extras: "-u ec2-user -o StrictHostKeyChecking=no"
             )
 
             // Ubuntu backend
@@ -59,11 +59,12 @@ stage('Ansible Deployment') {
                 inventory: 'inventory.ini',
                 limit: 'backend',
                 credentialsId: 'private_key',
-                extras: "-u ubuntu"
+                extras: "-u ubuntu -o StrictHostKeyChecking=no"
             )
         }
     }
 }
+
 
 
 
