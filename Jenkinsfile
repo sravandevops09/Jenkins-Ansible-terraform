@@ -16,16 +16,8 @@ pipeline {
             }
         }
         
-        stage('Terraform Apply') {
-            steps {
-                script {
-                    sh 'terraform init'
-                    sh 'terraform apply -auto-approve'
-                }
-            }
-        }
 
-        stage('Terraform Init/Plan/Apply') {
+        stage('Terraform Apply') {
             steps {
                 withAWS(credentials: 'aws_keys') {
                     sh '''
