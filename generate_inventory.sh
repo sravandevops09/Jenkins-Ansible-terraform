@@ -1,14 +1,18 @@
 #!/bin/bash
 
-# Run Terraform to get the public IPs output
-amzn_linux_ip=$(terraform output amzn_linux_public_ip)
-ubuntu_linux_ip=$(terraform output ubuntu_linux_public_ip)
+# Get Terraform public IP outputs in raw format
+amzn_linux_ip=$(terraform output -raw amzn_linux_public_ip)
+ubuntu_linux_ip=$(terraform output -raw ubuntu_linux_public_ip)
 
 # Create an INI format dynamic inventory
-inventory_content="[frontend]\n${amzn_linux_ip}"
-inventory_content+="[backend]\n${ubuntu_linux_ip}"
+cat <<EOF > inventory.ini
+[frontend]
+${amzn_linux_ip} ansible_user=ec2-user ansible_ssh_private_key_file=~/.ssh/${AMAZON_KEY_PAIR}.pem
 
-# Write the inventory to a file
-echo -e "$inventory_content" > inventory.ini
+[backend]
+${ubuntu_linux_ip} ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/${UBUNTU_KEY_PAIR}.pem
+EOF
 
 echo "Dynamic inventory file generated: inventory.ini"
+cat inventory.ini
+
