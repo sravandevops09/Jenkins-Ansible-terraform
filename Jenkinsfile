@@ -40,33 +40,43 @@ pipeline {
 }
 
 
-        stage('Ansible Deployment') {
-            steps {
-                withCredentials([sshUserPrivateKey(
-                    credentialsId: 'private_key',
-                    keyFileVariable: 'ANSIBLE_KEY',
-                    usernameVariable: 'ANSIBLE_USER'
-                )]) {
-                    script {
-                        // Frontend
-                        ansiblePlaybook(
-                            playbook: 'amazon-playbook.yml',
-                            inventory: 'inventory.ini',
-                            limit: 'frontend',
-                            extras: """--private-key ${ANSIBLE_KEY} -u ${ANSIBLE_USER} --ssh-extra-args='-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'"""
-                        )
-
-                        // Backend
-                        ansiblePlaybook(
-                            playbook: 'ubuntu-playbook.yml',
-                            inventory: 'inventory.ini',
-                            limit: 'backend',
-                            extras: """--private-key ${ANSIBLE_KEY} -u ${ANSIBLE_USER} --ssh-extra-args='-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'"""
-                        )
-                    }
-                }
+    stage('Deploy Frontend') {
+        steps {
+            withCredentials([sshUserPrivateKey(
+                credentialsId: 'private_key', 
+                keyFileVariable: 'ANSIBLE_KEY', 
+                usernameVariable: 'ANSIBLE_USER'
+            )]) {
+                ansiblePlaybook(
+                    playbook: 'amazon-playbook.yml',
+                    inventory: 'inventory.ini',
+                    limit: 'frontend',
+                    extras: """--private-key ${ANSIBLE_KEY} -u ${ANSIBLE_USER} \
+                               --ssh-extra-args='-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'"""
+                )
             }
         }
+    }
+
+    stage('Deploy Backend') {
+        steps {
+            withCredentials([sshUserPrivateKey(
+                credentialsId: 'private_key', 
+                keyFileVariable: 'ANSIBLE_KEY', 
+                usernameVariable: 'ANSIBLE_USER'
+            )]) {
+                ansiblePlaybook(
+                    playbook: 'ubuntu-playbook.yml',
+                    inventory: 'inventory.ini',
+                    limit: 'backend',
+                    extras: """--private-key ${ANSIBLE_KEY} -u ${ANSIBLE_USER} \
+                               --ssh-extra-args='-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'"""
+                )
+            }
+        }
+    }
+
+
     
 
 
