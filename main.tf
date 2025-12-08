@@ -3,20 +3,20 @@ provider "aws" {
 }
 
 resource "aws_instance" "amzn_linux" {
-  ami           = "ami-05c13eab67c5d8861"
-  instance_type = "t2.micro"
-  key_name      = "linux"
-  vpc_security_group_ids = ["sg-04cb5f715d70d6f35"]
+  ami           = "ami-0fa3fe0fa7920f68e"
+  instance_type = "t3.micro"
+  key_name      = "jenkins-key"
+  vpc_security_group_ids = ["sg-0bfa56e31afa0516d"]
   tags = {
     Name = "amz-linux"
   }
 }
 
 resource "aws_instance" "ubuntu_linux" {
-  ami           = "ami-0fc5d935ebf8bc3bc"
-  instance_type = "t2.micro"
-  key_name      = "ubuntu-key"
-  vpc_security_group_ids = ["sg-04cb5f715d70d6f35"]
+  ami           = "ami-0ecb62995f68bb549"
+  instance_type = "t3.micro"
+  key_name      = "jenkins-key"
+  vpc_security_group_ids = ["sg-0bfa56e31afa0516d"]
   tags = {
     Name = "ubuntu22"
   }
