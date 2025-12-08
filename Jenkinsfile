@@ -25,11 +25,15 @@ pipeline {
             }
         }
 
-        stage('Generate Ansible Inventory') {
+        stage('Terraform Init/Plan/Apply') {
             steps {
-                script {
-                    sh 'chmod +x generate_inventory.sh'
-                    sh './generate_inventory.sh > inventory.ini'
+                withAWS(credentials: 'aws_keys') {
+                    sh '''
+                        echo "Running Terraform..."
+                        terraform init
+                        terraform plan
+                        terraform apply -auto-approve
+                    '''
                 }
             }
         }
