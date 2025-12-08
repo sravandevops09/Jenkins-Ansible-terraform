@@ -3,8 +3,8 @@ pipeline {
 
     environment {
         AWS_REGION = 'us-east-1'
-        AMAZON_KEY_PAIR = 'linux'
-        UBUNTU_KEY_PAIR = 'ubuntu-key'
+        AMAZON_KEY_PAIR = 'jenkins-key'
+        UBUNTU_KEY_PAIR = 'jenkins-key'
     }
 
     stages {
