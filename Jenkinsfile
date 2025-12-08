@@ -44,24 +44,27 @@ stage('Ansible Deployment') {
     steps {
         script {
 
-            // Amazon Linux Deployment
+            // Amazon Linux frontend
             ansiblePlaybook(
                 playbook: 'amazon-playbook.yml',
                 inventory: 'inventory.ini',
                 limit: 'frontend',
-                credentialsId: 'private_key'
+                credentialsId: 'private_key',  // your Jenkins SSH key
+                extras: "-u ec2-user"
             )
 
-            // Ubuntu Deployment
+            // Ubuntu backend
             ansiblePlaybook(
                 playbook: 'ubuntu-playbook.yml',
                 inventory: 'inventory.ini',
                 limit: 'backend',
-                credentialsId: 'private_key'
+                credentialsId: 'private_key',
+                extras: "-u ubuntu"
             )
         }
     }
 }
+
 
 
     }
