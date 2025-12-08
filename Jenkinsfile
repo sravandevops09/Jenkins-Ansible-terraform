@@ -42,17 +42,17 @@ pipeline {
 
 stage('Ansible Deployment') {
     steps {
-        script {
-            // Wrap withCredentials to inject the SSH key
-            withCredentials([sshUserPrivateKey(credentialsId: 'private_key', 
-                                              keyFileVariable: 'ANSIBLE_KEY', 
-                                              usernameVariable: 'ANSIBLE_USER')]) {
+        // Properly wrap withCredentials so the private key is used
+        withCredentials([sshUserPrivateKey(credentialsId: 'private_key', 
+                                           keyFileVariable: 'ANSIBLE_KEY', 
+                                           usernameVariable: 'ANSIBLE_USER')]) {
+            script {
                 // Frontend (Amazon Linux)
                 ansiblePlaybook(
                     playbook: 'amazon-playbook.yml',
                     inventory: 'inventory.ini',
                     limit: 'frontend',
-                    extras: "--private-key ${ANSIBLE_KEY} -u ec2-user --ssh-extra-args='-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'"
+                    extras: "--private-key ${ANSIBLE_KEY} -u ${ANSIBLE_USER} --ssh-extra-args='-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'"
                 )
 
                 // Backend (Ubuntu)
