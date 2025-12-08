@@ -30,6 +30,16 @@ pipeline {
             }
         }
 
+        stage('Generate Inventory') {
+    steps {
+        sh '''
+            chmod +x generate_inventory.sh
+            ./generate_inventory.sh
+        '''
+    }
+}
+
+
      stage('Ansible Deployment') {
     steps {
         script {
