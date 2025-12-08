@@ -7,6 +7,7 @@ resource "aws_instance" "amzn_linux" {
   instance_type = "t3.micro"
   key_name      = "jenkins-key"
   vpc_security_group_ids = ["sg-0bfa56e31afa0516d"]
+  subnet_id = "subnet-036627dba318b207f"
   tags = {
     Name = "amz-linux"
   }
@@ -17,6 +18,7 @@ resource "aws_instance" "ubuntu_linux" {
   instance_type = "t3.micro"
   key_name      = "jenkins-key"
   vpc_security_group_ids = ["sg-0bfa56e31afa0516d"]
+  subnet_id = "subnet-036627dba318b207f"
   tags = {
     Name = "ubuntu22"
   }
