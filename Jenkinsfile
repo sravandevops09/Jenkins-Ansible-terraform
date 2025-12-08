@@ -43,31 +43,30 @@ pipeline {
 stage('Ansible Deployment') {
     steps {
         script {
-            // Wrap the Ansible playbooks in Jenkins SSH credentials
-            withCredentials([sshUserPrivateKey(
-                                credentialsId: 'private_key',  // Your Jenkins SSH key credential ID
-                                keyFileVariable: 'ANSIBLE_KEY', 
-                                usernameVariable: 'ANSIBLE_USER')]) {
-
-                // Frontend: Amazon Linux
+            // Wrap withCredentials to inject the SSH key
+            withCredentials([sshUserPrivateKey(credentialsId: 'private_key', 
+                                              keyFileVariable: 'ANSIBLE_KEY', 
+                                              usernameVariable: 'ANSIBLE_USER')]) {
+                // Frontend (Amazon Linux)
                 ansiblePlaybook(
                     playbook: 'amazon-playbook.yml',
                     inventory: 'inventory.ini',
                     limit: 'frontend',
-                    extras: "--private-key ${ANSIBLE_KEY} -u ${ANSIBLE_USER} --ssh-extra-args='-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'"
+                    extras: "--private-key ${ANSIBLE_KEY} -u ec2-user --ssh-extra-args='-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'"
                 )
 
-                // Backend: Ubuntu
+                // Backend (Ubuntu)
                 ansiblePlaybook(
                     playbook: 'ubuntu-playbook.yml',
                     inventory: 'inventory.ini',
                     limit: 'backend',
-                    extras: "--private-key ${ANSIBLE_KEY} -u ${ANSIBLE_USER} --ssh-extra-args='-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'"
+                    extras: "--private-key ${ANSIBLE_KEY} -u ubuntu --ssh-extra-args='-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'"
                 )
             }
         }
     }
 }
+
 
 
 
