@@ -42,29 +42,29 @@ pipeline {
 
 stage('Ansible Deployment') {
     steps {
-        script {
+        withCredentials([sshUserPrivateKey(
+            credentialsId: 'private_key', // your Jenkins credential ID
+            keyFileVariable: 'ANSIBLE_KEY', 
+            usernameVariable: 'ANSIBLE_USER'
+        )]) {
+            script {
+                ansiblePlaybook(
+                    playbook: 'amazon-playbook.yml',
+                    inventory: 'inventory.ini',
+                    limit: 'frontend',
+                    extras: "-u ${ANSIBLE_USER} --private-key ${ANSIBLE_KEY} -o StrictHostKeyChecking=no"
+                )
 
-            // Amazon Linux frontend
-            ansiblePlaybook(
-                playbook: 'amazon-playbook.yml',
-                inventory: 'inventory.ini',
-                limit: 'frontend',
-                credentialsId: 'private_key',       // your Jenkins SSH key
-                extras: "-u ec2-user -o StrictHostKeyChecking=no"
-            )
-
-            // Ubuntu backend
-            ansiblePlaybook(
-                playbook: 'ubuntu-playbook.yml',
-                inventory: 'inventory.ini',
-                limit: 'backend',
-                credentialsId: 'private_key',
-                extras: "-u ubuntu -o StrictHostKeyChecking=no"
-            )
+                ansiblePlaybook(
+                    playbook: 'ubuntu-playbook.yml',
+                    inventory: 'inventory.ini',
+                    limit: 'backend',
+                    extras: "-u ${ANSIBLE_USER} --private-key ${ANSIBLE_KEY} -o StrictHostKeyChecking=no"
+                )
+            }
         }
     }
 }
-
 
 
 
