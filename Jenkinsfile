@@ -40,23 +40,29 @@ pipeline {
 }
 
 
-     stage('Ansible Deployment') {
+stage('Ansible Deployment') {
     steps {
         script {
+
+            // Amazon Linux Deployment
             ansiblePlaybook(
                 playbook: 'amazon-playbook.yml',
                 inventory: 'inventory.ini',
-                limit: 'frontend'
+                limit: 'frontend',
+                credentialsId: 'private_key'
             )
 
+            // Ubuntu Deployment
             ansiblePlaybook(
                 playbook: 'ubuntu-playbook.yml',
                 inventory: 'inventory.ini',
-                limit: 'backend'
+                limit: 'backend',
+                credentialsId: 'private_key'
             )
         }
     }
 }
+
 
     }
 }
