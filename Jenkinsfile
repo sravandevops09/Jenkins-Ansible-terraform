@@ -40,24 +40,39 @@ pipeline {
 }
 
 
-stage('Ansible Deployment') {
-    steps {
-        withCredentials([sshUserPrivateKey(
-            credentialsId: 'private_key',       // your Jenkins SSH credential ID
-            keyFileVariable: 'ANSIBLE_KEY',     // temporary variable for the key
-            usernameVariable: 'ANSIBLE_USER'    // temporary variable for SSH user
-        )]) {
-            script {
-                ansiblePlaybook(
-                    playbook: 'amazon-playbook.yml',
-                    inventory: 'inventory.ini',
-                    limit: 'frontend',
-                    extras: "--private-key ${ANSIBLE_KEY} -u ${ANSIBLE_USER} --ssh-extra-args='-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'"
-                )
+pipeline {
+    agent any
+    stages {
+        stage('Ansible Deployment') {
+            steps {
+                withCredentials([sshUserPrivateKey(
+                    credentialsId: 'private_key',   // your Jenkins SSH credential ID
+                    keyFileVariable: 'ANSIBLE_KEY', // temp key file
+                    usernameVariable: 'ANSIBLE_USER' // SSH username (ec2-user/ubuntu)
+                )]) {
+                    script {
+                        // Frontend deployment
+                        ansiblePlaybook(
+                            playbook: 'amazon-playbook.yml',
+                            inventory: 'inventory.ini',
+                            limit: 'frontend',
+                            extras: """--private-key ${ANSIBLE_KEY} -u ${ANSIBLE_USER} --ssh-extra-args='-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'"""
+                        )
+
+                        // Backend deployment
+                        ansiblePlaybook(
+                            playbook: 'ubuntu-playbook.yml',
+                            inventory: 'inventory.ini',
+                            limit: 'backend',
+                            extras: """--private-key ${ANSIBLE_KEY} -u ${ANSIBLE_USER} --ssh-extra-args='-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'"""
+                        )
+                    }
+                }
             }
         }
     }
 }
+
 
 
 
