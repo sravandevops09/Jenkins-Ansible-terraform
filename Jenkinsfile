@@ -48,23 +48,26 @@ stage('Ansible Deployment') {
             usernameVariable: 'ANSIBLE_USER'
         )]) {
             script {
+                // Frontend
                 ansiblePlaybook(
                     playbook: 'amazon-playbook.yml',
                     inventory: 'inventory.ini',
                     limit: 'frontend',
-                    extras: "-u ${ANSIBLE_USER} --private-key ${ANSIBLE_KEY} -o StrictHostKeyChecking=no"
+                    extras: "--private-key ${ANSIBLE_KEY} -u ${ANSIBLE_USER} --ssh-extra-args='-o StrictHostKeyChecking=no'"
                 )
 
+                // Backend
                 ansiblePlaybook(
                     playbook: 'ubuntu-playbook.yml',
                     inventory: 'inventory.ini',
                     limit: 'backend',
-                    extras: "-u ${ANSIBLE_USER} --private-key ${ANSIBLE_KEY} -o StrictHostKeyChecking=no"
+                    extras: "--private-key ${ANSIBLE_KEY} -u ${ANSIBLE_USER} --ssh-extra-args='-o StrictHostKeyChecking=no'"
                 )
             }
         }
     }
 }
+
 
 
 
