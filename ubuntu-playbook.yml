@@ -18,7 +18,15 @@
       shell: |
         bash -c "curl -L -Ss https://my-netdata.io/kickstart.sh | bash -s -- --non-interactive"
       args:
-        creates: /usr/sbin/netdata
+        creates: /opt/netdata
+
+    - name: Fix permissions on Netdata directory
+      file:
+        path: /opt/netdata
+        state: directory
+        recurse: yes
+        owner: netdata
+        group: netdata
 
     - name: Reload systemd daemon
       systemd:
@@ -29,3 +37,10 @@
         name: netdata
         state: started
         enabled: yes
+      register: netdata_service
+      failed_when: netdata_service.failed and "'ExecStart' in netdata_service.msg"
+
+    - name: Show Netdata logs if service failed
+      command: journalctl -xeu netdata.service
+      when: netdata_service.failed
+      ignore_errors: yes
