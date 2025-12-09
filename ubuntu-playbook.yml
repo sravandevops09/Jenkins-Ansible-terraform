@@ -1,8 +1,6 @@
----
 - hosts: backend
   become: true
   tasks:
-
     - name: Update APT cache
       apt:
         update_cache: yes
@@ -13,9 +11,9 @@
         state: present
 
     - name: Install Netdata using official script
-      shell: bash <(curl -Ss https://my-netdata.io/kickstart.sh) --non-interactive
+      shell: bash -c "curl -Ss https://my-netdata.io/kickstart.sh | bash -s -- --non-interactive"
       args:
-        creates: /usr/sbin/netdata   # Prevent re-installation if exists
+        creates: /usr/sbin/netdata  # Prevent re-installation
 
     - name: Find Netdata binary
       command: which netdata
