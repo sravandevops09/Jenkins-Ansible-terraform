@@ -10,29 +10,44 @@
       apt:
         name:
           - curl
-          - git
-          - zlib1g-dev
-          - uuid-dev
-          - libmnl-dev
-          - gcc
-          - make
-          - autoconf
-          - pkg-config
-          - net-tools
+          - gnupg
+          - lsb-release
         state: present
 
-    - name: Download and run Netdata installer
-      shell: |
-        curl -SsL https://my-netdata.io/kickstart.sh | bash -s -- --stable-channel --non-interactive
+    - name: Install Netdata using official script
+      shell: "bash -c 'curl -Ss https://my-netdata.io/kickstart.sh | bash -s -- --non-interactive'"
       args:
-        creates: /opt/netdata/bin/netdata
+        creates: /usr/sbin/netdata
+      notify:
+        - Reload systemd
+        - Enable and start Netdata
 
-    - name: Reload systemd daemon
+    - name: Create Netdata systemd service
+      copy:
+        dest: /etc/systemd/system/netdata.service
+        content: |
+          [Unit]
+          Description=Netdata Monitoring
+          After=network.target
+
+          [Service]
+          Type=simple
+          ExecStart=/usr/sbin/netdata
+          Restart=always
+
+          [Install]
+          WantedBy=multi-user.target
+      notify:
+        - Reload systemd
+        - Enable and start Netdata
+
+  handlers:
+    - name: Reload systemd
       systemd:
         daemon_reload: yes
 
-    - name: Enable and start Netdata service
+    - name: Enable and start Netdata
       systemd:
         name: netdata
-        enabled: yes
         state: started
+        enabled: yes
