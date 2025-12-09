@@ -21,9 +21,15 @@
           - net-tools
         state: present
 
-    - name: Install Netdata from official script (stable)
-      shell: |
-        bash -c "curl -Ss https://my-netdata.io/kickstart.sh | bash -s -- --stable-channel --non-interactive"
+    - name: Download Netdata installer script
+      get_url:
+        url: https://my-netdata.io/kickstart.sh
+        dest: /tmp/kickstart.sh
+        mode: '0755'
+        follow_redirects: yes
+
+    - name: Run Netdata installer
+      command: bash /tmp/kickstart.sh --stable-channel --non-interactive
       args:
         creates: /opt/netdata/bin/netdata
 
