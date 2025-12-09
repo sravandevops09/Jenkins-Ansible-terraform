@@ -2,7 +2,6 @@
 - hosts: backend
   become: true
   tasks:
-
     - name: Update APT cache
       apt:
         update_cache: yes
@@ -11,22 +10,22 @@
       apt:
         name:
           - curl
-          - sudo
+          - git
+          - zlib1g-dev
+          - uuid-dev
+          - libmnl-dev
+          - gcc
+          - make
+          - autoconf
+          - pkg-config
+          - net-tools
         state: present
 
-    - name: Install Netdata using official script
+    - name: Install Netdata from official script (stable)
       shell: |
-        bash -c "curl -L -Ss https://my-netdata.io/kickstart.sh | bash -s -- --non-interactive"
+        bash -c "curl -Ss https://my-netdata.io/kickstart.sh | bash -s -- --stable-channel --non-interactive"
       args:
-        creates: /opt/netdata
-
-    - name: Fix permissions on Netdata directory
-      file:
-        path: /opt/netdata
-        state: directory
-        recurse: yes
-        owner: netdata
-        group: netdata
+        creates: /opt/netdata/bin/netdata
 
     - name: Reload systemd daemon
       systemd:
@@ -35,12 +34,5 @@
     - name: Enable and start Netdata service
       systemd:
         name: netdata
-        state: started
         enabled: yes
-      register: netdata_service
-      failed_when: netdata_service.failed and "'ExecStart' in netdata_service.msg"
-
-    - name: Show Netdata logs if service failed
-      command: journalctl -xeu netdata.service
-      when: netdata_service.failed
-      ignore_errors: yes
+        state: started
