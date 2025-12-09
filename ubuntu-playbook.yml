@@ -1,48 +1,31 @@
+---
 - hosts: backend
   become: true
   tasks:
+
     - name: Update APT cache
       apt:
         update_cache: yes
 
-    - name: Install dependencies
+    - name: Install required dependencies
       apt:
-        name: curl
+        name:
+          - curl
+          - sudo
         state: present
 
     - name: Install Netdata using official script
-      shell: bash -c "curl -Ss https://my-netdata.io/kickstart.sh | bash -s -- --non-interactive"
+      shell: |
+        bash -c "curl -L -Ss https://my-netdata.io/kickstart.sh | bash -s -- --non-interactive"
       args:
-        creates: /usr/sbin/netdata  # Prevent re-installation
+        creates: /usr/sbin/netdata
 
-    - name: Find Netdata binary
-      command: which netdata
-      register: netdata_path
-
-    - name: Create systemd service for Netdata
-      copy:
-        dest: /etc/systemd/system/netdata.service
-        content: |
-          [Unit]
-          Description=Netdata Monitoring
-          After=network.target
-
-          [Service]
-          Type=simple
-          ExecStart={{ netdata_path.stdout }}
-          Restart=always
-
-          [Install]
-          WantedBy=multi-user.target
-      notify:
-        - Reload systemd
+    - name: Reload systemd daemon
+      systemd:
+        daemon_reload: yes
 
     - name: Enable and start Netdata service
       systemd:
         name: netdata
-        enabled: yes
         state: started
-
-  handlers:
-    - name: Reload systemd
-      command: systemctl daemon-reload
+        enabled: yes
