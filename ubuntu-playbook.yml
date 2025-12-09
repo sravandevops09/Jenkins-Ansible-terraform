@@ -9,18 +9,19 @@
 
     - name: Install dependencies
       apt:
-        name:
-          - curl
-          - gnupg2
+        name: curl
         state: present
 
     - name: Install Netdata using official script
-      shell: |
-        bash <(curl -Ss https://install.netdata.cloud/kickstart.sh) --non-interactive
+      shell: bash <(curl -Ss https://my-netdata.io/kickstart.sh) --non-interactive
       args:
-        executable: /bin/bash
+        creates: /usr/sbin/netdata   # Prevent re-installation if exists
 
-    - name: Create Netdata systemd service
+    - name: Find Netdata binary
+      command: which netdata
+      register: netdata_path
+
+    - name: Create systemd service for Netdata
       copy:
         dest: /etc/systemd/system/netdata.service
         content: |
@@ -29,19 +30,21 @@
           After=network.target
 
           [Service]
-          ExecStart=/opt/netdata/bin/netdata
+          Type=simple
+          ExecStart={{ netdata_path.stdout }}
           Restart=always
-          User=root
 
           [Install]
           WantedBy=multi-user.target
-
-    - name: Reload systemd daemon
-      systemd:
-        daemon_reload: yes
+      notify:
+        - Reload systemd
 
     - name: Enable and start Netdata service
       systemd:
         name: netdata
         enabled: yes
         state: started
+
+  handlers:
+    - name: Reload systemd
+      command: systemctl daemon-reload
