@@ -15,13 +15,13 @@
         state: present
 
     - name: Install Netdata using official script
-      shell: bash <(curl -Ss https://my-netdata.io/kickstart.sh) --non-interactive
+      shell: |
+        bash <(curl -Ss https://my-netdata.io/kickstart.sh) --non-interactive
       args:
-        warn: false
+        executable: /bin/bash
 
     - name: Ensure Netdata service is running
       systemd:
         name: netdata
         state: started
         enabled: true
-
