@@ -1,27 +1,47 @@
 ---
 - hosts: backend
   become: true
-
   tasks:
+
     - name: Update APT cache
       apt:
         update_cache: yes
 
-    - name: Install required dependencies
+    - name: Install dependencies
       apt:
         name:
           - curl
           - gnupg2
         state: present
 
-    - name: Install Netdata (updated official script)
+    - name: Install Netdata using official script
       shell: |
         bash <(curl -Ss https://install.netdata.cloud/kickstart.sh) --non-interactive
       args:
         executable: /bin/bash
 
-    - name: Ensure Netdata service is running
+    - name: Create Netdata systemd service
+      copy:
+        dest: /etc/systemd/system/netdata.service
+        content: |
+          [Unit]
+          Description=Netdata Monitoring
+          After=network.target
+
+          [Service]
+          ExecStart=/opt/netdata/bin/netdata
+          Restart=always
+          User=root
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Reload systemd daemon
+      systemd:
+        daemon_reload: yes
+
+    - name: Enable and start Netdata service
       systemd:
         name: netdata
+        enabled: yes
         state: started
-        enabled: true
