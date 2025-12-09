@@ -14,9 +14,9 @@
           - gnupg2
         state: present
 
-    - name: Install Netdata using official script
+    - name: Install Netdata (updated official script)
       shell: |
-        bash <(curl -Ss https://my-netdata.io/kickstart.sh) --non-interactive
+        bash <(curl -Ss https://install.netdata.cloud/kickstart.sh) --non-interactive
       args:
         executable: /bin/bash
 
